@@ -5,133 +5,134 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 
-# ── Page config ───────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="PCOS Detection System",
-    page_icon="🌸",
+    page_title="PCOS Clinical Detection System",
+    page_icon="🏥",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
-# ── Custom CSS ────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Quicksand:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Merriweather:wght@700&display=swap');
 
-html, body, [class*="css"] { font-family: 'Nunito', sans-serif; }
+html, body, [class*="css"] { font-family: 'Source Sans 3', sans-serif; }
+.stApp { background-color: #f0f2f5; }
 
-.stApp {
-    background: linear-gradient(135deg, #fff0f6 0%, #f0f4ff 40%, #f0fff8 100%);
-    background-attachment: fixed;
+.header-bar {
+    background: linear-gradient(90deg, #1a3a6b 0%, #2557a7 100%);
+    color: white; padding: 20px 36px;
+    margin: -1rem -1rem 28px -1rem;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 3px 12px rgba(26,58,107,0.3);
 }
-
-[data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #ff6b9d 0%, #c44dff 50%, #6b8cff 100%) !important;
-}
-[data-testid="stSidebar"] * { color: white !important; }
-[data-testid="stSidebar"] label {
-    color: rgba(255,255,255,0.9) !important;
-    font-weight: 700 !important;
-    font-size: 0.85rem !important;
-}
-[data-testid="stSidebar"] input {
-    background: rgba(255,255,255,0.2) !important;
-    border: 1px solid rgba(255,255,255,0.4) !important;
-    color: white !important;
-    border-radius: 10px !important;
+.header-title { font-family: 'Merriweather', serif; font-size: 1.4rem; font-weight: 700; }
+.header-sub { font-size: 0.78rem; opacity: 0.75; margin-top: 4px; letter-spacing: 0.04em; text-transform: uppercase; }
+.header-badge {
+    background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 8px; padding: 8px 18px; font-size: 0.85rem; font-weight: 600;
 }
 
-.sidebar-section {
-    background: rgba(255,255,255,0.15);
-    border-radius: 12px;
-    padding: 8px 12px;
-    margin: 14px 0 8px 0;
-    font-weight: 800;
-    font-size: 0.85rem;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    border-left: 4px solid rgba(255,255,255,0.6);
-}
-
-.hero {
-    background: linear-gradient(135deg, #ff6b9d, #c44dff, #6b8cff);
-    border-radius: 24px;
-    padding: 40px 48px;
-    margin-bottom: 28px;
-    color: white;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 20px 60px rgba(196,77,255,0.3);
-}
-.hero h1 {
-    font-family: 'Quicksand', sans-serif !important;
-    font-size: 2.6rem !important;
-    font-weight: 700 !important;
-    margin: 0 0 10px 0 !important;
-    color: white !important;
-}
-.hero p { font-size: 1rem; opacity: 0.92; margin: 0; }
-
-.stats-row { display: flex; gap: 16px; margin-bottom: 28px; flex-wrap: wrap; }
+.stats-row { display: flex; gap: 14px; margin-bottom: 22px; }
 .stat-card {
-    flex: 1; min-width: 130px;
-    background: white; border-radius: 18px;
-    padding: 20px 24px; text-align: center;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.07);
-    border-top: 4px solid;
+    flex: 1; background: white; border-radius: 10px;
+    padding: 16px 20px; border-left: 5px solid;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    display: flex; align-items: center; gap: 14px;
 }
-.stat-card:nth-child(1) { border-color: #ff6b9d; }
-.stat-card:nth-child(2) { border-color: #c44dff; }
-.stat-card:nth-child(3) { border-color: #6b8cff; }
-.stat-card:nth-child(4) { border-color: #00c9a7; }
-.stat-value { font-family: 'Quicksand', sans-serif; font-size: 2rem; font-weight: 700; color: #2d2d2d; }
-.stat-label { font-size: 0.76rem; color: #999; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; }
+.stat-card:nth-child(1) { border-color: #2557a7; }
+.stat-card:nth-child(2) { border-color: #0d7377; }
+.stat-card:nth-child(3) { border-color: #5a67a6; }
+.stat-card:nth-child(4) { border-color: #b7451a; }
+.stat-icon { font-size: 1.9rem; }
+.stat-value { font-size: 1.55rem; font-weight: 700; color: #1a1a2e; line-height: 1.1; }
+.stat-label { font-size: 0.73rem; color: #999; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
 
-.result-pcos {
-    background: linear-gradient(135deg, #ff6b9d, #ff4757);
-    border-radius: 20px; padding: 32px;
-    color: white; text-align: center;
-    box-shadow: 0 12px 40px rgba(255,107,157,0.4);
+.stTabs [data-baseweb="tab-list"] {
+    background: white !important; border-radius: 10px !important;
+    padding: 5px !important; gap: 4px !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07) !important;
+    margin-bottom: 16px !important;
 }
-.result-no-pcos {
-    background: linear-gradient(135deg, #00c9a7, #00b4d8);
-    border-radius: 20px; padding: 32px;
-    color: white; text-align: center;
-    box-shadow: 0 12px 40px rgba(0,201,167,0.4);
+.stTabs [data-baseweb="tab"] {
+    border-radius: 7px !important; padding: 10px 24px !important;
+    font-weight: 600 !important; font-size: 0.88rem !important;
+    color: #666 !important; background: transparent !important;
 }
-.result-emoji { font-size: 3.5rem; }
-.result-title { font-family: 'Quicksand', sans-serif; font-size: 1.8rem; font-weight: 700; }
-.result-subtitle { opacity: 0.9; margin-top: 8px; font-size: 0.95rem; }
+.stTabs [aria-selected="true"] {
+    background: #2557a7 !important; color: white !important;
+}
+.stTabs [data-baseweb="tab-panel"] {
+    background: white; border-radius: 12px;
+    padding: 26px 28px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+}
 
-.conf-wrap { background: white; border-radius: 18px; padding: 26px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
-.conf-label { font-weight: 700; color: #666; font-size: 0.83rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
-.conf-bar-bg { background: #f0f0f0; border-radius: 999px; height: 14px; overflow: hidden; margin-bottom: 4px; }
-.conf-fill-pcos { height:100%; border-radius:999px; background: linear-gradient(90deg,#ff6b9d,#ff4757); }
-.conf-fill-no   { height:100%; border-radius:999px; background: linear-gradient(90deg,#00c9a7,#00b4d8); }
-.conf-pct { font-size: 0.88rem; color: #aaa; text-align: right; margin-bottom: 16px; }
-
-.info-box {
-    background: linear-gradient(135deg, #fff8ff, #f0f4ff);
-    border: 1.5px solid #e0d4ff; border-radius: 16px;
-    padding: 18px 22px; margin-top: 20px;
-    font-size: 0.87rem; color: #666; line-height: 1.7;
+label { font-size: 0.84rem !important; font-weight: 600 !important; color: #374151 !important; }
+.stNumberInput input {
+    border-radius: 8px !important; border: 1.5px solid #d1d9e6 !important;
+    background: #fafbfd !important;
 }
-.info-box strong { color: #c44dff; }
 
 .stButton > button {
-    background: linear-gradient(135deg, #ff6b9d, #c44dff, #6b8cff) !important;
+    background: linear-gradient(90deg, #1a3a6b, #2557a7) !important;
     color: white !important; border: none !important;
-    border-radius: 50px !important; padding: 14px 0 !important;
-    font-size: 1.05rem !important; font-weight: 800 !important;
-    font-family: 'Quicksand', sans-serif !important;
+    border-radius: 8px !important; padding: 14px 0 !important;
+    font-size: 1rem !important; font-weight: 700 !important;
     width: 100% !important;
-    box-shadow: 0 8px 25px rgba(196,77,255,0.4) !important;
+    box-shadow: 0 4px 14px rgba(37,87,167,0.35) !important;
 }
+
+.result-positive {
+    background: #fff5f5; border: 2px solid #fc8181;
+    border-radius: 12px; padding: 30px 28px; text-align: center;
+}
+.result-negative {
+    background: #f0fff4; border: 2px solid #68d391;
+    border-radius: 12px; padding: 30px 28px; text-align: center;
+}
+.result-heading { font-family: 'Merriweather', serif; font-size: 1.5rem; font-weight: 700; margin: 10px 0 6px 0; }
+.result-positive .result-heading { color: #c53030; }
+.result-negative .result-heading { color: #276749; }
+.result-note { font-size: 0.88rem; color: #555; line-height: 1.6; }
+
+.conf-card {
+    background: white; border-radius: 12px;
+    padding: 24px 26px; box-shadow: 0 2px 10px rgba(0,0,0,0.07); height: 100%;
+}
+.conf-title {
+    font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: #2557a7;
+    border-bottom: 1px solid #e8edf5; padding-bottom: 10px; margin-bottom: 20px;
+}
+.conf-row { margin-bottom: 18px; }
+.conf-lbl { display: flex; justify-content: space-between; font-size: 0.87rem; font-weight: 600; color: #333; margin-bottom: 7px; }
+.conf-track { background: #edf2f7; border-radius: 999px; height: 11px; overflow: hidden; }
+.conf-fill-p { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #c53030, #fc8181); }
+.conf-fill-n { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #276749, #68d391); }
+
+[data-testid="stMetric"] {
+    background: white !important; border-radius: 10px !important;
+    padding: 16px 18px !important; box-shadow: 0 2px 8px rgba(0,0,0,0.07) !important;
+    border-top: 3px solid #2557a7 !important;
+}
+
+.disclaimer {
+    background: #fffbeb; border: 1px solid #f6d860;
+    border-left: 4px solid #d69e2e; border-radius: 8px;
+    padding: 14px 18px; font-size: 0.84rem; color: #744210;
+    line-height: 1.6; margin-top: 18px;
+}
+.footer {
+    text-align: center; padding: 22px; color: #bbb;
+    font-size: 0.8rem; margin-top: 16px; border-top: 1px solid #e2e8f0;
+}
+.footer a { color: #2557a7; text-decoration: none; }
 </style>
 """, unsafe_allow_html=True)
 
 
-# ── Load model ────────────────────────────────────────────────────────────────
+# ── Load Model ───────────────────────────────────────────────────────────────
 @st.cache_resource
 def load_model():
     df = pd.read_csv("PCOS_extended_dataset.csv")
@@ -143,112 +144,116 @@ def load_model():
     X = df.drop("PCOS (Y/N)", axis=1)
     y = df["PCOS (Y/N)"]
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    model = RandomForestClassifier(n_estimators=100, random_state=42)
-    model.fit(X_train, y_train)
-    acc = accuracy_score(y_test, model.predict(X_test))
-    return model, X.columns.tolist(), X.median().to_dict(), acc, len(df)
+    mdl = RandomForestClassifier(n_estimators=100, random_state=42)
+    mdl.fit(X_train, y_train)
+    acc = accuracy_score(y_test, mdl.predict(X_test))
+    return mdl, X.columns.tolist(), X.median().to_dict(), acc, len(df)
 
-model, feature_cols, medians, accuracy, total_patients = load_model()
+model, feature_cols, medians, accuracy, n_patients = load_model()
 
-
-# ── SIDEBAR ───────────────────────────────────────────────────────────────────
-with st.sidebar:
-    st.markdown("## Patient Details")
-    st.markdown("Enter clinical parameters and click **Predict**.")
-    st.markdown("---")
-
-    st.markdown('<div class="sidebar-section"> Personal & Physical</div>', unsafe_allow_html=True)
-    age        = st.number_input("Age (years)",          15, 55, 28)
-    weight     = st.number_input("Weight (Kg)",          30.0, 150.0, 60.0, 0.5)
-    height     = st.number_input("Height (Cm)",          130.0, 200.0, 160.0, 0.5)
-    bmi        = st.number_input("BMI",                  10.0, 55.0, 24.0, 0.1)
-    waist      = st.number_input("Waist (inch)",         20.0, 60.0, 30.0, 0.5)
-    hip        = st.number_input("Hip (inch)",           25.0, 65.0, 37.0, 0.5)
-    pulse      = st.number_input("Pulse rate (bpm)",     40, 120, 72)
-    rr         = st.number_input("RR (breaths/min)",     10, 40, 18)
-
-    st.markdown('<div class="sidebar-section"> Hormonal Levels</div>', unsafe_allow_html=True)
-    fsh        = st.number_input("FSH (mIU/mL)",         0.0, 30.0, 6.5, 0.1)
-    lh         = st.number_input("LH (mIU/mL)",          0.0, 40.0, 5.0, 0.1)
-    fsh_lh     = st.number_input("FSH/LH ratio",         0.0, 10.0, 1.3, 0.01)
-    amh        = st.number_input("AMH (ng/mL)",          0.0, 20.0, 3.5, 0.1)
-    tsh        = st.number_input("TSH (mIU/L)",          0.0, 10.0, 2.0, 0.1)
-    prl        = st.number_input("Prolactin (ng/mL)",    0.0, 100.0, 15.0, 0.5)
-    vit_d      = st.number_input("Vitamin D3 (ng/mL)",   0.0, 100.0, 25.0, 0.5)
-    prg        = st.number_input("Progesterone (ng/mL)", 0.0, 20.0, 0.5, 0.1)
-    rbs        = st.number_input("RBS (mg/dl)",          50.0, 300.0, 90.0, 1.0)
-
-    st.markdown('<div class="sidebar-section"> Blood & Ultrasound</div>', unsafe_allow_html=True)
-    hb           = st.number_input("Hb (g/dl)",           6.0, 18.0, 12.5, 0.1)
-    cycle_len    = st.number_input("Cycle length (days)", 20, 60, 28)
-    follicle_l   = st.number_input("Follicle No. (L)",    0, 30, 5)
-    follicle_r   = st.number_input("Follicle No. (R)",    0, 30, 5)
-    avg_f_size_l = st.number_input("Avg. F size (L) mm",  0.0, 30.0, 10.0, 0.5)
-    avg_f_size_r = st.number_input("Avg. F size (R) mm",  0.0, 30.0, 10.0, 0.5)
-    endometrium  = st.number_input("Endometrium (mm)",    0.0, 20.0, 7.0, 0.1)
-
-    st.markdown('<div class="sidebar-section"> Symptoms & Lifestyle</div>', unsafe_allow_html=True)
-    cycle_ri     = st.selectbox("Cycle", [2,4], format_func=lambda x: "Regular" if x==2 else "Irregular")
-    pregnant     = st.selectbox("Pregnant",          [0,1], format_func=lambda x: "Yes" if x else "No")
-    abortions    = st.number_input("No. of abortions", 0, 10, 0)
-    weight_gain  = st.selectbox("Weight gain",       [0,1], format_func=lambda x: "Yes" if x else "No")
-    hair_growth  = st.selectbox("Hair growth",       [0,1], format_func=lambda x: "Yes" if x else "No")
-    skin_dark    = st.selectbox("Skin darkening",    [0,1], format_func=lambda x: "Yes" if x else "No")
-    hair_loss    = st.selectbox("Hair loss",         [0,1], format_func=lambda x: "Yes" if x else "No")
-    pimples      = st.selectbox("Pimples",           [0,1], format_func=lambda x: "Yes" if x else "No")
-    fast_food    = st.selectbox("Fast food",         [0,1], format_func=lambda x: "Yes" if x else "No")
-    reg_exercise = st.selectbox("Regular exercise",  [0,1], format_func=lambda x: "Yes" if x else "No")
-
-    st.markdown("---")
-    predict_btn = st.button(" Run PCOS Prediction", use_container_width=True)
-
-
-# ── MAIN CONTENT ──────────────────────────────────────────────────────────────
+# ── Header ───────────────────────────────────────────────────────────────────
 st.markdown(f"""
-<div class="hero">
-    <h1> PCOS Detection System</h1>
-    <p>An intelligent ML-powered tool for early detection of <strong>Polycystic Ovary Syndrome</strong>
-    using clinical &amp; hormonal parameters. Fill patient details in the sidebar and click Predict.</p>
+<div class="header-bar">
+  <div>
+    <div class="header-title">🏥 PCOS Clinical Detection System</div>
+    <div class="header-sub">Supervised Machine Learning · Random Forest Classifier · Binary Classification</div>
+  </div>
+  <div class="header-badge">Model Accuracy &nbsp;{accuracy*100:.1f}%</div>
 </div>
 """, unsafe_allow_html=True)
 
+# ── Stat Cards ───────────────────────────────────────────────────────────────
 st.markdown(f"""
 <div class="stats-row">
-    <div class="stat-card"><div class="stat-value">{accuracy*100:.1f}%</div><div class="stat-label">Accuracy</div></div>
-    <div class="stat-card"><div class="stat-value">{total_patients:,}</div><div class="stat-label">Patients</div></div>
-    <div class="stat-card"><div class="stat-value">44</div><div class="stat-label">Features</div></div>
-    <div class="stat-card"><div class="stat-value">RF</div><div class="stat-label">Algorithm</div></div>
+  <div class="stat-card">
+    <div class="stat-icon">🎯</div>
+    <div><div class="stat-value">{accuracy*100:.1f}%</div><div class="stat-label">Test Accuracy</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">👥</div>
+    <div><div class="stat-value">{n_patients:,}</div><div class="stat-label">Patient Records</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">📊</div>
+    <div><div class="stat-value">42</div><div class="stat-label">Clinical Features</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">🌲</div>
+    <div><div class="stat-value">100</div><div class="stat-label">Decision Trees</div></div>
+  </div>
 </div>
 """, unsafe_allow_html=True)
 
-if not predict_btn:
-    c1, c2 = st.columns(2)
-    with c1:
-        st.markdown("""
-        ### 🩺 How to Use
-        1. Fill patient's clinical details in the **sidebar** on the left
-        2. Enter hormonal levels, ultrasound findings & symptoms
-        3. Click **Run PCOS Prediction**
-        4. Get instant result with confidence score
-        """)
-    with c2:
-        st.markdown("""
-        ### 📊 About the Model
-        - **Algorithm:** Random Forest (100 trees)
-        - **Dataset:** 2000 patient records, 44 features
-        - **Best performer** among 5 tested algorithms
-        - Trained on hormonal, physical & ultrasound data
-        """)
-    st.markdown("""
-    <div class="info-box">
-        <strong>⚠️ Medical Disclaimer:</strong> This tool is built for <strong>educational purposes</strong>
-        as part of a university ML project. It is <strong>not</strong> a substitute for clinical diagnosis.
-        Always consult a qualified gynaecologist for medical decisions.
-    </div>
-    """, unsafe_allow_html=True)
+# ── Input Tabs ───────────────────────────────────────────────────────────────
+st.markdown("##### Enter Patient Clinical Parameters")
+t1, t2, t3, t4 = st.tabs([
+    "👤  Personal & Physical",
+    "🔬  Hormonal Profile",
+    "🫀  Ultrasound & Blood",
+    "📋  Symptoms & Lifestyle"
+])
 
-else:
-    # Build input
+with t1:
+    a, b, c, d = st.columns(4)
+    age    = a.number_input("Age (years)",      15, 55, 28)
+    weight = b.number_input("Weight (Kg)",      30.0, 150.0, 60.0, 0.5)
+    height = c.number_input("Height (Cm)",      130.0, 200.0, 160.0, 0.5)
+    bmi    = d.number_input("BMI",              10.0, 55.0, 24.0, 0.1)
+    e, f, g, h = st.columns(4)
+    waist  = e.number_input("Waist (inch)",     20.0, 60.0, 30.0, 0.5)
+    hip    = f.number_input("Hip (inch)",       25.0, 65.0, 37.0, 0.5)
+    pulse  = g.number_input("Pulse rate (bpm)", 40, 120, 72)
+    rr     = h.number_input("RR (breaths/min)", 10, 40, 18)
+
+with t2:
+    a, b, c = st.columns(3)
+    fsh    = a.number_input("FSH (mIU/mL)",         0.0, 30.0, 6.5, 0.1)
+    lh     = b.number_input("LH (mIU/mL)",          0.0, 40.0, 5.0, 0.1)
+    fsh_lh = c.number_input("FSH / LH Ratio",       0.0, 10.0, 1.3, 0.01)
+    d, e, f = st.columns(3)
+    amh    = d.number_input("AMH (ng/mL)",          0.0, 20.0, 3.5, 0.1)
+    tsh    = e.number_input("TSH (mIU/L)",          0.0, 10.0, 2.0, 0.1)
+    prl    = f.number_input("Prolactin (ng/mL)",    0.0, 100.0, 15.0, 0.5)
+    g, h, i = st.columns(3)
+    vit_d  = g.number_input("Vitamin D3 (ng/mL)",   0.0, 100.0, 25.0, 0.5)
+    prg    = h.number_input("Progesterone (ng/mL)", 0.0, 20.0, 0.5, 0.1)
+    rbs    = i.number_input("RBS (mg/dl)",          50.0, 300.0, 90.0, 1.0)
+
+with t3:
+    a, b, c, d = st.columns(4)
+    hb           = a.number_input("Hb (g/dl)",           6.0, 18.0, 12.5, 0.1)
+    cycle_len    = b.number_input("Cycle length (days)", 20, 60, 28)
+    follicle_l   = c.number_input("Follicle No. (L)",    0, 30, 5)
+    follicle_r   = d.number_input("Follicle No. (R)",    0, 30, 5)
+    e, f, g = st.columns(3)
+    avg_f_size_l = e.number_input("Avg. F size L (mm)",  0.0, 30.0, 10.0, 0.5)
+    avg_f_size_r = f.number_input("Avg. F size R (mm)",  0.0, 30.0, 10.0, 0.5)
+    endometrium  = g.number_input("Endometrium (mm)",    0.0, 20.0, 7.0, 0.1)
+
+with t4:
+    a, b, c = st.columns(3)
+    cycle_ri     = a.selectbox("Menstrual Cycle",     [2,4], format_func=lambda x: "Regular" if x==2 else "Irregular")
+    pregnant     = b.selectbox("Pregnant",            [0,1], format_func=lambda x: "Yes" if x else "No")
+    abortions    = c.number_input("No. of Abortions", 0, 10, 0)
+    d, e, f = st.columns(3)
+    weight_gain  = d.selectbox("Weight Gain",         [0,1], format_func=lambda x: "Yes" if x else "No")
+    hair_growth  = e.selectbox("Excess Hair Growth",  [0,1], format_func=lambda x: "Yes" if x else "No")
+    skin_dark    = f.selectbox("Skin Darkening",      [0,1], format_func=lambda x: "Yes" if x else "No")
+    g, h, i = st.columns(3)
+    hair_loss    = g.selectbox("Hair Loss",           [0,1], format_func=lambda x: "Yes" if x else "No")
+    pimples      = h.selectbox("Pimples / Acne",      [0,1], format_func=lambda x: "Yes" if x else "No")
+    fast_food    = i.selectbox("Fast Food Intake",    [0,1], format_func=lambda x: "Yes" if x else "No")
+    _, j, _ = st.columns([1,1,1])
+    reg_exercise = j.selectbox("Regular Exercise",    [0,1], format_func=lambda x: "Yes" if x else "No")
+
+# ── Predict Button ───────────────────────────────────────────────────────────
+st.markdown("<br>", unsafe_allow_html=True)
+_, btn_col, _ = st.columns([1.5, 2, 1.5])
+with btn_col:
+    predict = st.button("🔍  Run Diagnostic Prediction", use_container_width=True)
+
+# ── Result ───────────────────────────────────────────────────────────────────
+if predict:
     user_values = {
         "Age (yrs)": age, "Weight (Kg)": weight, "Height(Cm) ": height, "BMI": bmi,
         "Pulse rate(bpm) ": pulse, "RR (breaths/min)": rr, "Hb(g/dl)": hb,
@@ -275,55 +280,66 @@ else:
     pcos_pct   = int(proba[1] * 100)
     no_pct     = int(proba[0] * 100)
 
-    col1, col2 = st.columns([1,1], gap="large")
-    with col1:
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("---")
+    st.markdown("##### Diagnostic Result")
+
+    r1, r2 = st.columns([1, 1], gap="large")
+    with r1:
         if prediction == 1:
             st.markdown("""
-            <div class="result-pcos">
-                <div class="result-emoji">⚠️</div>
-                <div class="result-title">PCOS Detected</div>
-                <div class="result-subtitle">Please consult a gynaecologist for clinical confirmation.</div>
+            <div class="result-positive">
+              <div style="font-size:2.6rem">⚕️</div>
+              <div class="result-heading">PCOS Detected</div>
+              <div class="result-note">Clinical parameters indicate a positive PCOS result.<br>
+              Gynaecological evaluation is strongly recommended.</div>
             </div>""", unsafe_allow_html=True)
         else:
             st.markdown("""
-            <div class="result-no-pcos">
-                <div class="result-emoji">✅</div>
-                <div class="result-title">No PCOS Detected</div>
-                <div class="result-subtitle">Parameters appear within normal range. Stay healthy!</div>
+            <div class="result-negative">
+              <div style="font-size:2.6rem">✅</div>
+              <div class="result-heading">No PCOS Detected</div>
+              <div class="result-note">Parameters appear within normal clinical range.<br>
+              Routine health monitoring is advised.</div>
             </div>""", unsafe_allow_html=True)
 
-    with col2:
+    with r2:
         st.markdown(f"""
-        <div class="conf-wrap">
-            <div style="font-family:Quicksand;font-weight:700;font-size:1.1rem;margin-bottom:20px;color:#333;">Prediction Confidence</div>
-            <div class="conf-label"> PCOS Likelihood</div>
-            <div class="conf-bar-bg"><div class="conf-fill-pcos" style="width:{pcos_pct}%"></div></div>
-            <div class="conf-pct">{pcos_pct}%</div>
-            <div class="conf-label">✅ No PCOS Likelihood</div>
-            <div class="conf-bar-bg"><div class="conf-fill-no" style="width:{no_pct}%"></div></div>
-            <div class="conf-pct">{no_pct}%</div>
+        <div class="conf-card">
+          <div class="conf-title">Prediction Confidence Score</div>
+          <div class="conf-row">
+            <div class="conf-lbl"><span>⚕️ PCOS Positive</span><span>{pcos_pct}%</span></div>
+            <div class="conf-track"><div class="conf-fill-p" style="width:{pcos_pct}%"></div></div>
+          </div>
+          <div class="conf-row">
+            <div class="conf-lbl"><span>✅ PCOS Negative</span><span>{no_pct}%</span></div>
+            <div class="conf-track"><div class="conf-fill-n" style="width:{no_pct}%"></div></div>
+          </div>
         </div>
         """, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown("### 📋 Key Indicators")
-    k1, k2, k3, k4 = st.columns(4)
-    k1.metric("FSH/LH Ratio", f"{fsh_lh:.2f}", "↑ Risk" if fsh_lh > 2 else "Normal")
-    k2.metric("AMH (ng/mL)",  f"{amh:.1f}",    "↑ Risk" if amh > 3.5 else "Normal")
-    k3.metric("Follicles (L+R)", f"{follicle_l+follicle_r}", "↑ Risk" if (follicle_l+follicle_r) > 12 else "Normal")
-    k4.metric("BMI",          f"{bmi:.1f}",    "Overweight" if bmi > 25 else "Normal")
+    st.markdown("##### Key Clinical Indicators")
+    m1, m2, m3, m4 = st.columns(4)
+    m1.metric("FSH/LH Ratio",    f"{fsh_lh:.2f}",             "Above normal" if fsh_lh > 2 else "Normal range")
+    m2.metric("AMH (ng/mL)",     f"{amh:.1f}",                 "Elevated"     if amh > 3.5 else "Normal range")
+    m3.metric("Total Follicles", f"{follicle_l+follicle_r}",   "High count"   if (follicle_l+follicle_r) > 12 else "Normal range")
+    m4.metric("BMI",             f"{bmi:.1f}",                  "Overweight"  if bmi > 25 else "Normal range")
 
     st.markdown("""
-    <div class="info-box">
-        <strong>⚠️ Disclaimer:</strong> This prediction is for <strong>educational purposes only</strong>
-        and is not a medical diagnosis. Consult a qualified healthcare professional for clinical evaluation.
+    <div class="disclaimer">
+      <strong>⚠️ Medical Disclaimer:</strong> This system is developed as an academic ML project
+      for educational purposes only. The result generated does <strong>not</strong> constitute a
+      clinical diagnosis. Evaluation by a qualified gynaecologist is mandatory before any
+      treatment decision is made.
     </div>
     """, unsafe_allow_html=True)
 
-st.markdown("---")
-st.markdown(
-    "<center><small style='color:#bbb'> PCOS Detection System &nbsp;·&nbsp; Random Forest ML &nbsp;·&nbsp; "
-    "Chitkara University &nbsp;·&nbsp; "
-    "<a href='https://github.com/kavmakani/PCOS-Detection' style='color:#c44dff'>GitHub ↗</a></small></center>",
-    unsafe_allow_html=True
-)
+# ── Footer ───────────────────────────────────────────────────────────────────
+st.markdown(f"""
+<div class="footer">
+  PCOS Clinical Detection System &nbsp;·&nbsp; Random Forest Classifier &nbsp;·&nbsp;
+  Department of CSE, Chitkara University &nbsp;·&nbsp;
+  <a href="https://github.com/kavmakani/PCOS-Detection" target="_blank">GitHub Repository ↗</a>
+</div>
+""", unsafe_allow_html=True)
