@@ -103,7 +103,7 @@ label { font-size: 0.84rem !important; font-weight: 600 !important; color: #3741
 .footer { text-align: center; padding: 22px; color: #bbb; font-size: 0.8rem; margin-top: 16px; border-top: 1px solid #e2e8f0; }
 .footer a { color: #2557a7; text-decoration: none; }
 </style>
-""")
+""", unsafe_allow_html=True) 
 
 
 # ── Load Model ───────────────────────────────────────────────────────────────
