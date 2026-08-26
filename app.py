@@ -19,11 +19,14 @@ st.markdown("""
 html, body, [class*="css"] { font-family: 'Source Sans 3', sans-serif; }
 .stApp { background-color: #f0f2f5; }
 
+/* Header Fixes for Mobile */
 .header-bar {
     background: linear-gradient(90deg, #1a3a6b 0%, #2557a7 100%);
     color: white; padding: 20px 36px;
     margin: -1rem -1rem 28px -1rem;
     display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; /* Allows wrapping on small screens */
+    gap: 15px;
     box-shadow: 0 3px 12px rgba(26,58,107,0.3);
 }
 .header-title { font-family: 'Merriweather', serif; font-size: 1.4rem; font-weight: 700; }
@@ -31,11 +34,20 @@ html, body, [class*="css"] { font-family: 'Source Sans 3', sans-serif; }
 .header-badge {
     background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.3);
     border-radius: 8px; padding: 8px 18px; font-size: 0.85rem; font-weight: 600;
+    white-space: nowrap;
 }
 
-.stats-row { display: flex; gap: 14px; margin-bottom: 22px; }
+/* Stat Card Fixes for Mobile */
+.stats-row { 
+    display: flex; 
+    flex-wrap: wrap; /* Crucial for mobile stacking */
+    gap: 14px; 
+    margin-bottom: 22px; 
+}
 .stat-card {
-    flex: 1; background: white; border-radius: 10px;
+    flex: 1 1 calc(25% - 14px); /* Default 4 columns */
+    min-width: 150px; /* Prevents cards from getting too squished */
+    background: white; border-radius: 10px;
     padding: 16px 20px; border-left: 5px solid;
     box-shadow: 0 2px 8px rgba(0,0,0,0.07);
     display: flex; align-items: center; gap: 14px;
@@ -48,88 +60,50 @@ html, body, [class*="css"] { font-family: 'Source Sans 3', sans-serif; }
 .stat-value { font-size: 1.55rem; font-weight: 700; color: #1a1a2e; line-height: 1.1; }
 .stat-label { font-size: 0.73rem; color: #999; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
 
-.stTabs [data-baseweb="tab-list"] {
-    background: white !important; border-radius: 10px !important;
-    padding: 5px !important; gap: 4px !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.07) !important;
-    margin-bottom: 16px !important;
+/* Mobile Media Query */
+@media (max-width: 768px) {
+    .header-bar {
+        flex-direction: column;
+        text-align: center;
+        padding: 15px 20px;
+    }
+    .stat-card {
+        flex: 1 1 calc(50% - 14px); /* 2 cards per row on tablets/large phones */
+    }
 }
-.stTabs [data-baseweb="tab"] {
-    border-radius: 7px !important; padding: 10px 24px !important;
-    font-weight: 600 !important; font-size: 0.88rem !important;
-    color: #666 !important; background: transparent !important;
-}
-.stTabs [aria-selected="true"] {
-    background: #2557a7 !important; color: white !important;
-}
-.stTabs [data-baseweb="tab-panel"] {
-    background: white; border-radius: 12px;
-    padding: 26px 28px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+@media (max-width: 480px) {
+    .stat-card {
+        flex: 1 1 100%; /* 1 card per row on small phones */
+    }
 }
 
+/* Rest of your existing CSS remains exactly the same below this line */
+.stTabs [data-baseweb="tab-list"] { background: white !important; border-radius: 10px !important; padding: 5px !important; gap: 4px !important; box-shadow: 0 2px 8px rgba(0,0,0,0.07) !important; margin-bottom: 16px !important; }
+.stTabs [data-baseweb="tab"] { border-radius: 7px !important; padding: 10px 24px !important; font-weight: 600 !important; font-size: 0.88rem !important; color: #666 !important; background: transparent !important; }
+.stTabs [aria-selected="true"] { background: #2557a7 !important; color: white !important; }
+.stTabs [data-baseweb="tab-panel"] { background: white; border-radius: 12px; padding: 26px 28px; box-shadow: 0 2px 10px rgba(0,0,0,0.07); }
 label { font-size: 0.84rem !important; font-weight: 600 !important; color: #374151 !important; }
-.stNumberInput input {
-    border-radius: 8px !important; border: 1.5px solid #d1d9e6 !important;
-    background: #fafbfd !important;
-}
-
-.stButton > button {
-    background: linear-gradient(90deg, #1a3a6b, #2557a7) !important;
-    color: white !important; border: none !important;
-    border-radius: 8px !important; padding: 14px 0 !important;
-    font-size: 1rem !important; font-weight: 700 !important;
-    width: 100% !important;
-    box-shadow: 0 4px 14px rgba(37,87,167,0.35) !important;
-}
-
-.result-positive {
-    background: #fff5f5; border: 2px solid #fc8181;
-    border-radius: 12px; padding: 30px 28px; text-align: center;
-}
-.result-negative {
-    background: #f0fff4; border: 2px solid #68d391;
-    border-radius: 12px; padding: 30px 28px; text-align: center;
-}
+.stNumberInput input { border-radius: 8px !important; border: 1.5px solid #d1d9e6 !important; background: #fafbfd !important; }
+.stButton > button { background: linear-gradient(90deg, #1a3a6b, #2557a7) !important; color: white !important; border: none !important; border-radius: 8px !important; padding: 14px 0 !important; font-size: 1rem !important; font-weight: 700 !important; width: 100% !important; box-shadow: 0 4px 14px rgba(37,87,167,0.35) !important; }
+.result-positive { background: #fff5f5; border: 2px solid #fc8181; border-radius: 12px; padding: 30px 28px; text-align: center; }
+.result-negative { background: #f0fff4; border: 2px solid #68d391; border-radius: 12px; padding: 30px 28px; text-align: center; }
 .result-heading { font-family: 'Merriweather', serif; font-size: 1.5rem; font-weight: 700; margin: 10px 0 6px 0; }
 .result-positive .result-heading { color: #c53030; }
 .result-negative .result-heading { color: #276749; }
 .result-note { font-size: 0.88rem; color: #555; line-height: 1.6; }
-
-.conf-card {
-    background: white; border-radius: 12px;
-    padding: 24px 26px; box-shadow: 0 2px 10px rgba(0,0,0,0.07); height: 100%;
-}
-.conf-title {
-    font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.08em; color: #2557a7;
-    border-bottom: 1px solid #e8edf5; padding-bottom: 10px; margin-bottom: 20px;
-}
+.conf-card { background: white; border-radius: 12px; padding: 24px 26px; box-shadow: 0 2px 10px rgba(0,0,0,0.07); height: 100%; }
+.conf-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #2557a7; border-bottom: 1px solid #e8edf5; padding-bottom: 10px; margin-bottom: 20px; }
 .conf-row { margin-bottom: 18px; }
 .conf-lbl { display: flex; justify-content: space-between; font-size: 0.87rem; font-weight: 600; color: #333; margin-bottom: 7px; }
 .conf-track { background: #edf2f7; border-radius: 999px; height: 11px; overflow: hidden; }
 .conf-fill-p { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #c53030, #fc8181); }
 .conf-fill-n { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #276749, #68d391); }
-
-[data-testid="stMetric"] {
-    background: white !important; border-radius: 10px !important;
-    padding: 16px 18px !important; box-shadow: 0 2px 8px rgba(0,0,0,0.07) !important;
-    border-top: 3px solid #2557a7 !important;
-}
-
-.disclaimer {
-    background: #fffbeb; border: 1px solid #f6d860;
-    border-left: 4px solid #d69e2e; border-radius: 8px;
-    padding: 14px 18px; font-size: 0.84rem; color: #744210;
-    line-height: 1.6; margin-top: 18px;
-}
-.footer {
-    text-align: center; padding: 22px; color: #bbb;
-    font-size: 0.8rem; margin-top: 16px; border-top: 1px solid #e2e8f0;
-}
+[data-testid="stMetric"] { background: white !important; border-radius: 10px !important; padding: 16px 18px !important; box-shadow: 0 2px 8px rgba(0,0,0,0.07) !important; border-top: 3px solid #2557a7 !important; }
+.disclaimer { background: #fffbeb; border: 1px solid #f6d860; border-left: 4px solid #d69e2e; border-radius: 8px; padding: 14px 18px; font-size: 0.84rem; color: #744210; line-height: 1.6; margin-top: 18px; }
+.footer { text-align: center; padding: 22px; color: #bbb; font-size: 0.8rem; margin-top: 16px; border-top: 1px solid #e2e8f0; }
 .footer a { color: #2557a7; text-decoration: none; }
 </style>
-""", unsafe_allow_html=True)
+""")
 
 
 # ── Load Model ───────────────────────────────────────────────────────────────
